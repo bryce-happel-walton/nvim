@@ -4,7 +4,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/bryce-happel-walton/nvim/main/install.sh | sh
 #   or, from a clone:  ./install.sh
 #
-# Needs Neovim 0.12+ and Rust. Installs everything else: the config, rust-analyzer,
+# Needs Neovim 0.12+ and Rust (rustup). Installs everything else: the config, rust-analyzer,
 # rustfmt, ripgrep, the tree-sitter CLI, a Nerd Font, plugins and tree-sitter parsers.
 # Safe to run again to repair or update.
 set -eu
@@ -62,7 +62,8 @@ main() {
   version_ge "${NVIM_VERSION:-0}" 0.12.0 || die "Neovim ${NVIM_VERSION:-?} is too old. Install 0.12 or newer."
   ok "Neovim $NVIM_VERSION"
 
-  has cargo || die "Rust not found. Install it from https://rustup.rs, open a new terminal and run this again."
+  has rustup || die "Rust (rustup) not found. Install it from https://rustup.rs, open a new terminal and run this again."
+  cargo --version >/dev/null 2>&1 || die "rustup has no default Rust toolchain. Run: rustup default stable"
   ok "Rust $(cargo --version | cut -d' ' -f2)"
 
   missing=""
@@ -120,21 +121,11 @@ main() {
   ###############################################################################
   step "Installing tools"
 
-  if has rustup; then
-    if out=$(rustup component add rust-analyzer rustfmt 2>&1); then
-      ok "rust-analyzer and rustfmt"
-    else
-      warn "rustup couldn't add rust-analyzer and rustfmt:"
-      printf '%s\n' "$out" | sed 's/^/      /'
-    fi
+  if out=$(rustup component add rust-analyzer rustfmt 2>&1); then
+    ok "rust-analyzer and rustfmt"
   else
-    # Rust from Homebrew includes rustfmt; rust-analyzer is a separate formula.
-    if ! has rust-analyzer && has brew; then brew install rust-analyzer >/dev/null 2>&1 || true; fi
-    if has rust-analyzer && has rustfmt; then
-      ok "rust-analyzer and rustfmt"
-    else
-      warn "rust-analyzer or rustfmt is missing (no rustup found). Install them with your package manager."
-    fi
+    warn "rustup couldn't add rust-analyzer and rustfmt:"
+    printf '%s\n' "$out" | sed 's/^/      /'
   fi
 
   if has rg; then

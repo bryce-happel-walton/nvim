@@ -4,7 +4,7 @@ Neovim set up to feel like VS Code, with Rust support.
 
 ## Install
 
-You need Neovim 0.12+ and Rust. Then run:
+You need Neovim 0.12+ and Rust installed with [rustup](https://rustup.rs) (the installer from rust-lang.org). Then run:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/bryce-happel-walton/nvim/main/install.sh | sh
