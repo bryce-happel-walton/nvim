@@ -83,7 +83,7 @@ main() {
   # The folder this script is in, when it's run from a file (not piped from curl).
   SRC_DIR=""
   case $0 in
-    *install.sh) SRC_DIR=$(cd "$(dirname "$0")" && pwd -P) ;;
+    *install.sh) SRC_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P) ;;
   esac
   [ -n "$SRC_DIR" ] && [ ! -f "$SRC_DIR/lua/config/bootstrap.lua" ] && SRC_DIR=""
 
@@ -98,7 +98,7 @@ main() {
   }
 
   if [ -n "$SRC_DIR" ]; then
-    if [ "$(cd "$CONFIG_DIR" 2>/dev/null && pwd -P)" = "$SRC_DIR" ]; then
+    if [ "$(CDPATH='' cd -- "$CONFIG_DIR" 2>/dev/null && pwd -P)" = "$SRC_DIR" ]; then
       ok "Already there"
     else
       backup_config
@@ -127,10 +127,14 @@ main() {
       warn "rustup couldn't add rust-analyzer and rustfmt:"
       printf '%s\n' "$out" | sed 's/^/      /'
     fi
-  elif has rust-analyzer && has rustfmt; then
-    ok "rust-analyzer and rustfmt"
   else
-    warn "rustup not found, so rust-analyzer and rustfmt weren't installed. Install them with your package manager."
+    # Rust from Homebrew includes rustfmt; rust-analyzer is a separate formula.
+    if ! has rust-analyzer && has brew; then brew install rust-analyzer >/dev/null 2>&1 || true; fi
+    if has rust-analyzer && has rustfmt; then
+      ok "rust-analyzer and rustfmt"
+    else
+      warn "rust-analyzer or rustfmt is missing (no rustup found). Install them with your package manager."
+    fi
   fi
 
   if has rg; then
@@ -142,15 +146,27 @@ main() {
     if cargo install --locked --quiet ripgrep; then ok "ripgrep"; else warn "ripgrep failed to install (search won't work)"; fi
   fi
 
-  ts_version() { tree-sitter --version 2>/dev/null | awk '{ print $2 }'; }
+  ts_version() { "${1:-tree-sitter}" --version 2>/dev/null | awk '{ print $2 }'; }
+  # Prebuilt binary (seconds); needs a recent glibc on Linux, so it's tested before use.
+  ts_prebuilt() {
+    case $OS in Darwin) ts_os=macos ;; Linux) ts_os=linux ;; *) return 1 ;; esac
+    case $(uname -m) in x86_64 | amd64) ts_arch=x64 ;; arm64 | aarch64) ts_arch=arm64 ;; *) return 1 ;; esac
+    curl -fsSL -o "$TMP/tree-sitter.gz" \
+      "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-$ts_os-$ts_arch.gz" &&
+      gunzip -f "$TMP/tree-sitter.gz" && chmod +x "$TMP/tree-sitter" || return 1
+    version_ge "$(ts_version "$TMP/tree-sitter")" "$TREE_SITTER_MIN" || return 1
+    mkdir -p "$CARGO_BIN" && mv -f "$TMP/tree-sitter" "$CARGO_BIN/tree-sitter"
+  }
   if has tree-sitter && version_ge "$(ts_version)" "$TREE_SITTER_MIN"; then
+    ok "tree-sitter CLI $(ts_version)"
+  elif ts_prebuilt; then
     ok "tree-sitter CLI $(ts_version)"
   else
     say "Building the tree-sitter CLI (a few minutes)..."
     if cargo install --locked --quiet tree-sitter-cli; then
       ok "tree-sitter CLI $(ts_version)"
     else
-      warn "tree-sitter CLI failed to install (syntax highlighting falls back to the basic version)"
+      warn "The tree-sitter CLI failed to build (it needs Rust 1.90 or newer; try: rustup update). Highlighting falls back to the basic version."
     fi
   fi
   # An older tree-sitter earlier on your PATH would be used instead of the new one.
@@ -213,6 +229,9 @@ main() {
   fi
 
   ###############################################################################
+  if [ "$OS" = Darwin ]; then
+    note "For the Alt shortcuts (like Alt+1 and Shift+Alt+F), set your terminal's Option key to act as Alt. See the README."
+  fi
   case ${TERM_PROGRAM:-} in
     Apple_Terminal)
       note "macOS Terminal can't send shortcuts like Ctrl+Shift+O or Ctrl+Tab. Use Ghostty, kitty, WezTerm or iTerm2." ;;

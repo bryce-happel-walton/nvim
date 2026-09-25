@@ -21,7 +21,15 @@ with "Report keys using CSI u" turned on. Other terminals can't tell apart short
 Tab or digits, like `Ctrl+Shift+O`.
 
 **macOS:** each `Ctrl` shortcut is also mapped to `Cmd`. This works in Neovide, and in terminals
-that pass Cmd through to apps (kitty, WezTerm, Ghostty).
+that pass Cmd through to apps (kitty, WezTerm, Ghostty). For the `Alt` shortcuts, make the Option
+key act as Alt:
+
+| Terminal | Setting |
+| --- | --- |
+| Ghostty | `macos-option-as-alt = true` |
+| kitty | `macos_option_as_alt yes` |
+| WezTerm | `send_composed_key_when_left_alt_is_pressed = false` |
+| iTerm2 | Settings > Profiles > Keys > Left Option key: Esc+ |
 
 ## Keybindings
 

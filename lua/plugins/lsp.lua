@@ -14,6 +14,7 @@ return {
   {
     "saghen/blink.cmp",
     version = "1.*",
+    event = "InsertEnter", -- also loaded before nvim-lspconfig, which depends on it
     opts = {
       keymap = {
         preset = "enter", -- Enter accepts, Ctrl+Space opens

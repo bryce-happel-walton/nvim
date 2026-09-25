@@ -20,6 +20,16 @@ function M.run()
   end
   lazy.load({ plugins = { "nvim-treesitter", "blink.cmp", "codediff.nvim" } })
 
+  -- Loading blink.cmp starts its binary download in the background. Note when it
+  -- settles: "rust" on success, "lua" when it falls back after a failed download.
+  local fuzzy = require("blink.cmp.fuzzy")
+  local fuzzy_impl = fuzzy.implementation_type == "rust" and "rust" or nil
+  local set_implementation = fuzzy.set_implementation
+  fuzzy.set_implementation = function(impl)
+    fuzzy_impl = impl
+    return set_implementation(impl)
+  end
+
   local ts = require("config.treesitter")
   if #ts.missing() > 0 then
     say("  Building tree-sitter parsers (about a minute)...")
@@ -33,8 +43,8 @@ function M.run()
     problems[#problems + 1] = "tree-sitter parsers failed: " .. table.concat(missing, ", ")
   end
 
-  local fuzzy = require("blink.cmp.fuzzy")
-  if not vim.wait(5 * 60 * 1000, function() return fuzzy.implementation_type == "rust" end, 200) then
+  vim.wait(5 * 60 * 1000, function() return fuzzy_impl ~= nil end, 200)
+  if fuzzy_impl ~= "rust" then
     problems[#problems + 1] = "completion engine download failed (completion still works, just slower)"
   end
 
