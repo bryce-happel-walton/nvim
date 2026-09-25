@@ -32,3 +32,10 @@ opt.timeoutlen = 500
 opt.confirm = true -- ask to save instead of failing on :q with changes
 
 opt.fillchars = { eob = " ", diff = "╱" }
+
+-- Find tools installed with cargo/rustup (rust-analyzer, tree-sitter, rg) even when
+-- ~/.cargo/bin isn't on the shell's PATH.
+local cargo_bin = (vim.env.CARGO_HOME or (vim.env.HOME .. "/.cargo")) .. "/bin"
+if not (":" .. vim.env.PATH .. ":"):find(":" .. cargo_bin .. ":", 1, true) then
+  vim.env.PATH = cargo_bin .. ":" .. vim.env.PATH
+end

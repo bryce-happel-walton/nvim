@@ -4,19 +4,21 @@ Neovim set up to feel like VS Code, with Rust support.
 
 ## Install
 
-Requirements:
-
-- Neovim 0.12+
-- `git`, `rg` (ripgrep), `curl`
-- A [Nerd Font](https://www.nerdfonts.com/) in your terminal
-- Rust tools: `rustup component add rust-analyzer rustfmt`
-- A terminal with the kitty keyboard protocol (kitty, WezTerm, Ghostty, foot, Alacritty, iTerm2 with "CSI u" on).
-  Without it, shortcuts using Shift, Tab or digits (like `Ctrl+Shift+O`) can't be told apart.
+You need Neovim 0.12+ and Rust. Then run:
 
 ```sh
-git clone https://github.com/bryce-happel-walton/nvim ~/.config/nvim
-nvim   # plugins install on first start
+curl -fsSL https://raw.githubusercontent.com/bryce-happel-walton/nvim/main/install.sh | sh
 ```
+
+Or from a clone: `./install.sh`. It's safe to run again any time to repair or update.
+
+It installs everything else: the config (an existing one is backed up first), rust-analyzer,
+rustfmt, ripgrep, the tree-sitter CLI, Hack Nerd Font, the plugins and the syntax parsers.
+When it's done, set your terminal's font to **Hack Nerd Font**.
+
+Use a terminal with the kitty keyboard protocol: kitty, WezTerm, Ghostty, foot, Alacritty, or iTerm2
+with "Report keys using CSI u" turned on. Other terminals can't tell apart shortcuts with Shift,
+Tab or digits, like `Ctrl+Shift+O`.
 
 **macOS:** each `Ctrl` shortcut is also mapped to `Cmd`. This works in Neovide, and in terminals
 that pass Cmd through to apps (kitty, WezTerm, Ghostty).
@@ -114,8 +116,9 @@ In the source control view, `q` closes it and `g?` lists its keys. In the git gr
 ## Layout
 
 ```
+install.sh    one-step installer
 init.lua
-lua/config/   options, keymaps, status bar, helpers
+lua/config/   options, keymaps, status bar, tree-sitter, installer steps, helpers
 lua/plugins/  ui (theme, tabs, status bar), snacks (pickers, explorer, terminal),
-              editor (multi-cursor), lsp (completion, rust-analyzer, format), git
+              editor (multi-cursor), lsp (tree-sitter, completion, rust-analyzer, format), git
 ```

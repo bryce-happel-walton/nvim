@@ -62,4 +62,14 @@ function M.close_editor()
   end
 end
 
+--- Document symbols from LSP when available, otherwise from treesitter.
+function M.document_symbols()
+  local has_lsp = #vim.lsp.get_clients({ bufnr = 0, method = "textDocument/documentSymbol" }) > 0
+  if has_lsp then
+    Snacks.picker.lsp_symbols()
+  else
+    Snacks.picker.treesitter()
+  end
+end
+
 return M

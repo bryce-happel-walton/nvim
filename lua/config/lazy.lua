@@ -26,4 +26,5 @@ require("lazy").setup({
   install = { colorscheme = { "vscode" } },
   checker = { enabled = false },
   change_detection = { notify = false },
+  headless = { process = false, log = false, task = false }, -- keep install.sh quiet; it reports failures itself
 })

@@ -1,4 +1,15 @@
 return {
+  -- Syntax highlighting
+  {
+    "nvim-treesitter/nvim-treesitter",
+    branch = "main",
+    lazy = false,
+    build = ":TSUpdate",
+    config = function()
+      require("config.treesitter").setup()
+    end,
+  },
+
   -- Completion (IntelliSense)
   {
     "saghen/blink.cmp",
