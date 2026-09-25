@@ -19,7 +19,7 @@ end
 
 -- Quick open / go to symbol / command palette / search
 cmap({ "n", "i" }, "p", anywhere(function() Snacks.picker.files({ hidden = true }) end), "Go to file")
-cmap({ "n", "i" }, "S-o", anywhere(util.document_symbols), "Go to symbol in editor")
+cmap({ "n", "i" }, "S-o", anywhere(function() Snacks.picker.lsp_symbols() end), "Go to symbol in editor")
 cmap({ "n", "i" }, "t", anywhere(function() Snacks.picker.lsp_workspace_symbols() end), "Go to symbol in workspace")
 cmap({ "n", "i" }, "S-p", anywhere(function() Snacks.picker.commands() end), "Command palette")
 cmap({ "n", "i" }, "S-f", anywhere(function() Snacks.picker.grep({ hidden = true }) end), "Search in files")

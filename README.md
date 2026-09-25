@@ -7,16 +7,15 @@ Neovim set up to feel like VS Code, with Rust support.
 Requirements:
 
 - Neovim 0.12+
-- `git`, `rg` (ripgrep), a C compiler, `curl`, `tar`
+- `git`, `rg` (ripgrep), `curl`
 - A [Nerd Font](https://www.nerdfonts.com/) in your terminal
 - Rust tools: `rustup component add rust-analyzer rustfmt`
-- Tree-sitter CLI (for syntax highlighting): `cargo install --locked tree-sitter-cli`
 - A terminal with the kitty keyboard protocol (kitty, WezTerm, Ghostty, foot, Alacritty, iTerm2 with "CSI u" on).
   Without it, shortcuts using Shift, Tab or digits (like `Ctrl+Shift+O`) can't be told apart.
 
 ```sh
 git clone https://github.com/bryce-happel-walton/nvim ~/.config/nvim
-nvim   # plugins and parsers install on first start
+nvim   # plugins install on first start
 ```
 
 **macOS:** each `Ctrl` shortcut is also mapped to `Cmd`. This works in Neovide, and in terminals
@@ -118,5 +117,5 @@ In the source control view, `q` closes it and `g?` lists its keys. In the git gr
 init.lua
 lua/config/   options, keymaps, status bar, helpers
 lua/plugins/  ui (theme, tabs, status bar), snacks (pickers, explorer, terminal),
-              editor (multi-cursor), lsp (treesitter, completion, rust-analyzer, format), git
+              editor (multi-cursor), lsp (completion, rust-analyzer, format), git
 ```

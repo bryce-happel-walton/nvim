@@ -1,37 +1,4 @@
 return {
-  -- Syntax highlighting
-  {
-    "nvim-treesitter/nvim-treesitter",
-    branch = "main",
-    lazy = false,
-    build = ":TSUpdate",
-    config = function()
-      local ts = require("nvim-treesitter")
-      local wanted = {
-        "rust", "toml", "lua", "json", "yaml", "markdown", "markdown_inline",
-        "bash", "vim", "vimdoc", "query", "regex", "diff",
-        "gitcommit", "git_rebase", "gitignore", "git_config",
-      }
-      local missing = vim.tbl_filter(function(lang)
-        return not vim.list_contains(ts.get_installed(), lang)
-      end, wanted)
-      if #missing > 0 then
-        if vim.fn.executable("tree-sitter") == 1 then
-          ts.install(missing, { summary = true })
-        else
-          vim.notify("tree-sitter CLI not found: run `cargo install --locked tree-sitter-cli`", vim.log.levels.WARN)
-        end
-      end
-
-      vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("treesitter_highlight", { clear = true }),
-        callback = function(ev)
-          pcall(vim.treesitter.start, ev.buf)
-        end,
-      })
-    end,
-  },
-
   -- Completion (IntelliSense)
   {
     "saghen/blink.cmp",
