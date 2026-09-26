@@ -34,7 +34,7 @@ return {
     },
   },
 
-  -- Status bar: | branch | sync | blame | problems | todos | position | language |
+  -- Status bar: | SSH host | branch | sync | blame | problems | todos | position | language |
   {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
@@ -50,7 +50,14 @@ return {
           section_separators = "",
         },
         sections = {
-          lualine_a = { "branch" },
+          lualine_a = {
+            {
+              function() return "󰣀 SSH: " .. require("config.remote").label() end,
+              cond = function() return require("config.remote").host ~= nil end,
+              on_click = function() vim.cmd("Remote") end,
+            },
+            "branch",
+          },
           lualine_b = { { sl.sync_status, on_click = sl.sync_click } },
           lualine_c = { sl.blame },
           lualine_x = {

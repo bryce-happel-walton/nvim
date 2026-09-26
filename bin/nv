@@ -1,0 +1,11 @@
+#!/bin/sh
+# nv: Neovim sessions that keep running, on this machine or an SSH host. See lua/nv/cli.lua.
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in
+    /*) self=$link ;;
+    *) self=$(dirname "$self")/$link ;;
+  esac
+done
+exec nvim -l "$(dirname "$self")/../lua/nv/cli.lua" "$@"

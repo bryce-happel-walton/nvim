@@ -12,9 +12,9 @@ curl -fsSL https://raw.githubusercontent.com/bryce-happel-walton/nvim/main/insta
 
 Or from a clone: `./install.sh`. It's safe to run again any time to repair or update.
 
-It installs everything else: the config (an existing one is backed up first), rust-analyzer,
-rustfmt, ripgrep, the tree-sitter CLI, Hack Nerd Font, the plugins and the syntax parsers.
-When it's done, set your terminal's font to **Hack Nerd Font**.
+It installs everything else: the config (an existing one is backed up first), the `nv`
+command, rust-analyzer, rustfmt, ripgrep, the tree-sitter CLI, Hack Nerd Font, the plugins and
+the syntax parsers. When it's done, set your terminal's font to **Hack Nerd Font**.
 
 Use a terminal with the kitty keyboard protocol: kitty, WezTerm, Ghostty, foot, Alacritty, or iTerm2
 with "Report keys using CSI u" turned on. Other terminals can't tell apart shortcuts with Shift,
@@ -30,6 +30,41 @@ key act as Alt:
 | kitty | `macos_option_as_alt yes` |
 | WezTerm | `send_composed_key_when_left_alt_is_pressed = false` |
 | iTerm2 | Settings > Profiles > Keys > Left Option key: Esc+ |
+
+## Remote SSH and sessions that keep running
+
+Start Neovim with `nv` instead of `nvim`:
+
+```sh
+nv                      # this folder, on this machine
+nv ~/code/app           # another folder
+nv devbox               # an SSH host (from ~/.ssh/config, or user@host): your home folder there
+nv devbox:~/code/app    # a folder on an SSH host
+nv --list               # sessions you've opened
+```
+
+Like VS Code Remote-SSH, the editor runs on the host (files, terminals, rust-analyzer, git) and
+your terminal shows it, with all the same shortcuts.
+
+- **Sessions keep running.** Close the terminal, lose the connection or restart your computer, and
+  the session carries on with its open files and running terminals. Run the same `nv` command to
+  get back to it. After a dropped connection, `nv` reconnects by itself.
+- **They end when you quit** Neovim (`:qa`) or the machine they run on restarts. `:detach` leaves one
+  running and returns to your shell.
+- **Switch hosts and folders** from inside Neovim with `:Remote`, or by clicking **SSH: host** in the
+  status bar. The session you leave keeps running.
+- **Copying on a host goes to your local clipboard** (`"+y`), if your terminal supports OSC 52
+  (kitty, WezTerm, Ghostty, Alacritty, foot; in iTerm2 allow clipboard access in its settings).
+  Paste with your terminal's paste shortcut.
+
+The first time you connect to a host, `nv` installs the same Neovim version and this config
+there, which takes about a minute. It uses its own folders (`~/.config/nv`, `~/.local/share/nv`),
+so it doesn't touch anything already on the host, and it doesn't need sudo. The host needs
+`git`, `curl` and `tar`; a C compiler for the best syntax highlighting; and Rust (rustup) for
+rust-analyzer. Linux hosts need glibc 2.34 or newer (Ubuntu 22.04+, Debian 12+, RHEL 9+).
+
+If sessions on a Linux host stop when you disconnect, the host ends processes at logout; run
+`loginctl enable-linger` there once.
 
 ## Keybindings
 
@@ -113,8 +148,10 @@ In the source control view, `q` closes it and `g?` lists its keys. In the git gr
 ## Status bar
 
 ```
- branch │ 󰓦 incoming↓ outgoing↑ │ blame of current line │ errors warnings │ TODOs │ Ln, Col (selected) │ language
+ (SSH: host) │ branch │ 󰓦 incoming↓ outgoing↑ │ blame of current line │ errors warnings │ TODOs │ Ln, Col (selected) │ language
 ```
+
+- **SSH: host** shows when the session runs on an SSH host; click it to switch (`:Remote`).
 
 - **Sync:** click to pull and then push, or "Publish" to push a new branch. Fetches every 3 minutes, like VS Code's autofetch.
 - **Errors/warnings:** counts for the whole workspace; click for the Problems list.
@@ -125,8 +162,9 @@ In the source control view, `q` closes it and `g?` lists its keys. In the git gr
 
 ```
 install.sh    one-step installer
+bin/nv        the nv command (lua/nv/: sessions, SSH connections, host setup)
 init.lua
-lua/config/   options, keymaps, status bar, tree-sitter, installer steps, helpers
+lua/config/   options, keymaps, status bar, tree-sitter, remote, installer steps, helpers
 lua/plugins/  ui (theme, tabs, status bar), snacks (pickers, explorer, terminal),
               editor (multi-cursor), lsp (tree-sitter, completion, rust-analyzer, format), git
 ```
